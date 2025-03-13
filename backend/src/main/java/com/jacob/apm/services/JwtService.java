@@ -2,18 +2,14 @@ package com.jacob.apm.services;
 
 import com.jacob.apm.constants.MainConstants;
 import com.jacob.apm.utilities.APISystemTime;
-import com.sun.tools.javac.Main;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,19 +25,19 @@ public class JwtService {
     }
 
     private String createToken(Map<String, Object> claims, String userName) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy HH:mm");
         Date issuedAt = APISystemTime.getInstantTimeAsUTCDate();
         Date expiry = new Date(issuedAt.getTime() + ((long) MainConstants.JWT_TOKEN_VALIDITY_IN_HOURS * MainConstants.DURATION_MILLISECONDS_IN_ONE_HOUR));
 
         return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(userName)
-//                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setIssuedAt(issuedAt)
-//                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 300))
-                .setExpiration(expiry)
-                .signWith(getSignKey(), SignatureAlgorithm.HS256).compact();
+                .claims(claims)
+                .subject(userName)
+                .issuedAt(issuedAt)
+                .expiration(expiry)
+                .signWith(getSignKey())
+                .compact();
     }
+
+
 
     private Key getSignKey() {
         byte[] keyBytes= Decoders.BASE64.decode(SECRET);

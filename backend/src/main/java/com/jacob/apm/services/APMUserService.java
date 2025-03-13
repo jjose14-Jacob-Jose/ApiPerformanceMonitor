@@ -53,7 +53,7 @@ public class APMUserService implements UserDetailsService {
                     " Invalid values" +
                     "\n" +
                     "userSignUpRequest: " +
-                    userSignUpRequest.toString()
+                    userSignUpRequest
                     ;
             APMLogger.logError(errorMessage);
             return errorMessage;
@@ -202,13 +202,6 @@ public class APMUserService implements UserDetailsService {
             APMLogger.logError("Request object from client is null");
             return MainConstants.FLAG_FAILURE;
         }
-
-
-//    Google reCaptcha Server-side validation is paused due to error.
-//        if(! (RecaptchaUtil.validateRecaptcha(userSignUpRequest.getGoogleReCaptchaToken()))) {
-//            APMLogger.logError("Validation of Google reCaptcha token failed.");
-//            return MainConstants.FLAG_FAILURE;
-//        }
 
         APMUser apmUserFromDb = getAPMUserByUsername(userSignUpRequest.getUsername());
 
