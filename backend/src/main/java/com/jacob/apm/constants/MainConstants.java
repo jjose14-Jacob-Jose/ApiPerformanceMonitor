@@ -14,13 +14,9 @@ public class MainConstants {
     public static String MSG_DELIMITER_USERNAME_TO_CALLER_NAME = ": ";
     public static String MSG_ACCOUNT_LOCK_STATUS_UNLOCKED = "Account Unlocked";
     public static String MSG_ACCOUNT_LOCK_STATUS_LOCKED = "Account locked";
-    public static String URL_GOOGLE_RECAPTCHA_VERIFICATION = "https://www.google.com/recaptcha/api/siteverify";
-    public static String KEY_GOOGLE_RECAPTCHA_SERVER = "6LcBzNYoAAAAAGpbkM0UzHd0HENtDSFFVZBqZyir";
-    public static int JWT_TOKEN_VALIDITY_IN_HOURS = 24;
     public static boolean FLAG_SUCCESS = true;
     public static boolean FLAG_FAILURE = false;
     public static int DURATION_MILLISECONDS_IN_ONE_HOUR = 60 * 60 * 1000;
-    public static int LOGIN_ATTEMPTS_FAILED_MAX_COUNT = 5;
     public static int LOGIN_ATTEMPTS_FAILED_RESET_VALUE = 0;
     public static int COUNT_SEARCH_RESULTS_ROLE_USER = 50;
 

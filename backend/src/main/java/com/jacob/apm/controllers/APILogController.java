@@ -6,6 +6,8 @@ import com.jacob.apm.models.ApmDashboardApiCall;
 import com.jacob.apm.models.RequestForDateRange;
 import com.jacob.apm.services.APILogService;
 import com.jacob.apm.utilities.APMLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

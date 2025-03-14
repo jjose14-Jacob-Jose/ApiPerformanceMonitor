@@ -6,6 +6,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -18,7 +19,12 @@ import java.util.function.Function;
 @Component
 public class JwtService {
 
-    public static final String SECRET = "5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437";
+    @Value("${secrets.jwt}")
+    private String SECRET;
+
+    @Value("${duration.jwt_token_validity_in_hours}")
+    private long JWT_TOKEN_VALIDITY_IN_HOURS;
+
     public String generateToken(String userName) {
         Map<String, Object> claims = new HashMap<>();
         return createToken(claims, userName);
@@ -26,7 +32,7 @@ public class JwtService {
 
     private String createToken(Map<String, Object> claims, String userName) {
         Date issuedAt = APISystemTime.getInstantTimeAsUTCDate();
-        Date expiry = new Date(issuedAt.getTime() + ((long) MainConstants.JWT_TOKEN_VALIDITY_IN_HOURS * MainConstants.DURATION_MILLISECONDS_IN_ONE_HOUR));
+        Date expiry = new Date(issuedAt.getTime() + (JWT_TOKEN_VALIDITY_IN_HOURS * MainConstants.DURATION_MILLISECONDS_IN_ONE_HOUR));
 
         return Jwts.builder()
                 .claims(claims)

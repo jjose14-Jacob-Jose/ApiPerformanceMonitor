@@ -2,6 +2,7 @@ package com.jacob.apm.utilities;
 
 import com.jacob.apm.constants.MainConstants;
 import com.jacob.apm.models.ReCaptchaResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -12,6 +13,12 @@ import org.springframework.web.client.RestTemplate;
 
 
 public class RecaptchaUtil {
+
+    @Value("${urls.google_recaptcha_server}")
+    private static String GOOGLE_RECAPTCHA_SERVER_URL;
+
+    @Value("${secrets.google_recaptcha_server}")
+    private static String GOOGLE_RECAPTCHA_SERVER_KEY;
 
     /**
      * Method to validate Google reCaptcha.
@@ -25,12 +32,12 @@ public class RecaptchaUtil {
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-        map.add("secret", MainConstants.KEY_GOOGLE_RECAPTCHA_SERVER);
+        map.add("secret", GOOGLE_RECAPTCHA_SERVER_KEY);
         map.add("response", userResponse);
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
 
-        ResponseEntity<ReCaptchaResponse> reCaptchaApiResponse = restTemplate.postForEntity(MainConstants.URL_GOOGLE_RECAPTCHA_VERIFICATION, request, ReCaptchaResponse.class);
+        ResponseEntity<ReCaptchaResponse> reCaptchaApiResponse = restTemplate.postForEntity(GOOGLE_RECAPTCHA_SERVER_URL, request, ReCaptchaResponse.class);
 
         if (reCaptchaApiResponse.getStatusCode().is2xxSuccessful() && reCaptchaApiResponse.getBody().isSuccess()) {
             return MainConstants.FLAG_SUCCESS;

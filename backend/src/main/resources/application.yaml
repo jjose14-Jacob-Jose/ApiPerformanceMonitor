@@ -1,0 +1,17 @@
+spring:
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: API_Performance_Monitor
+
+secrets:
+  jwt: ${JWT_SECRET}
+  google_recaptcha_server: ${GOOGLE_RECAPTCHA_SERVER_KEY}
+
+urls:
+  google_recaptcha_server: "https://www.google.com/recaptcha/api/siteverify"
+
+duration:
+  jwt_token_validity_in_hours: 24
+
