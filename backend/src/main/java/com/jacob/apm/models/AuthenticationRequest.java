@@ -18,4 +18,10 @@ public class AuthenticationRequest {
     private String password;
     private String googleReCaptcha;
 
+    public String toLogString() {
+        return "AuthenticationRequest{" +
+                "username='" + username + '\'' +
+                ", googleReCaptcha='" + googleReCaptcha + '\'' +
+                '}';
+    }
 }

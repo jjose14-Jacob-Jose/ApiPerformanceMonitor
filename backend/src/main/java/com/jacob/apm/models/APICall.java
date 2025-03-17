@@ -20,4 +20,10 @@ public class APICall {
     private String callerName;
     private String callerTimestampUTC;
 
+    public String toLogString() {
+        return "APICall{" +
+                "callId='" + callId + '\'' +
+                ", callerName='" + callerName + '\'' +
+                '}';
+    }
 }

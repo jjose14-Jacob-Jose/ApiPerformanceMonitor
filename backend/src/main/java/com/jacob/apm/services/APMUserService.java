@@ -6,9 +6,10 @@ import com.jacob.apm.models.UserInfoDetails;
 import com.jacob.apm.models.UserSignUpRequest;
 import com.jacob.apm.repositories.APMUserRepository;
 import com.jacob.apm.utilities.APISystemTime;
-import com.jacob.apm.utilities.APMLogger;
 import com.jacob.apm.utilities.RecaptchaUtil;
 import com.jacob.apm.utilities.RequestValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,6 +27,8 @@ import static com.jacob.apm.constants.ConfigurationConstants.ROLE_USER;
 @Service
 public class APMUserService implements UserDetailsService {
 
+    private static final Logger logger = LoggerFactory.getLogger(APMUserService.class.getName());
+
     @Autowired
     private APMUserRepository apmUserRepository;
 
@@ -39,35 +42,29 @@ public class APMUserService implements UserDetailsService {
      * @return 'MainConstants.MSG_SUCCESS' or 'MainConstants.MSG_FAILURE'
      */
     public String saveUserToDatabase(UserSignUpRequest userSignUpRequest) {
-        String methodNameForLogger = "saveUserToDatabase()";
-        APMLogger.logMethodEntry(methodNameForLogger);
+        logger.info("Calling saveUserToDatabase(). userSignUpRequest : {}", userSignUpRequest.toString());
 
         if (userSignUpRequest == null){
-            String errorMessage = methodNameForLogger + " object is null";
-            APMLogger.logError(errorMessage);
+            String errorMessage = "Request object(userSignUpRequest) is null.";
+            logger.error(errorMessage);
             return errorMessage;
         }
 
         if(RequestValidator.validateUserSignUpRequest(userSignUpRequest) == MainConstants.FLAG_FAILURE) {
-            String errorMessage = methodNameForLogger +
-                    " Invalid values" +
-                    "\n" +
-                    "userSignUpRequest: " +
-                    userSignUpRequest
-                    ;
-            APMLogger.logError(errorMessage);
+            String errorMessage = "Request object(userSignupRequest) validation failed";
+            logger.error(errorMessage);
             return errorMessage;
         }
 
         if(! (RecaptchaUtil.validateRecaptcha(userSignUpRequest.getGoogleReCaptchaToken()))) {
             String errorMessage = "Failed validating Google reCaptcha";
-            APMLogger.logError(errorMessage);
+            logger.error(errorMessage);
             return errorMessage;
         }
 
         if(getAPMUserByUsername(userSignUpRequest.getUsername()) != null) {
-            String errorMessage = "The username is already in use";
-            APMLogger.logError(errorMessage);
+            String errorMessage = "The username is already exists.";
+            logger.error(errorMessage);
             return errorMessage;
         }
 
@@ -83,18 +80,16 @@ public class APMUserService implements UserDetailsService {
 
         try {
             apmUserRepository.save(apmUser);
-            APMLogger.logMethodExit(methodNameForLogger);
+            logger.info("User saved to database.");
             return MainConstants.MSG_SUCCESS;
         } catch (Exception exception) {
-            String errorMessage = "Exception while saving user  to database." + exception;
-            APMLogger.logError(errorMessage);
-            return errorMessage;
+            logger.info("Exception while saving user  to database." + exception.toString());
+            return exception.getMessage();
         }
     }
 
     public UserDetails loadUserByUsername(String username) {
-        String methodNameForLogger = "getAPMUserWithUserName()";
-        APMLogger.logMethodEntry(methodNameForLogger);
+        logger.info("Calling loadUserByUsername(). username : {}", username);
 
         if (username == null || username.equalsIgnoreCase(MainConstants.STRING_EMPTY)) {
             return null;
@@ -108,7 +103,7 @@ public class APMUserService implements UserDetailsService {
                 return new UserInfoDetails(apmUser);
             }
         } catch (Exception exception) {
-            APMLogger.logError(methodNameForLogger, exception);
+            logger.error("Failed to retrieve the user. exception: {}", exception.toString());
         }
         return null;
     }
@@ -119,11 +114,10 @@ public class APMUserService implements UserDetailsService {
      * @return APMUser object of user with 'username' (if found), 'null' if no entry found.
      */
     public APMUser getAPMUserByUsername(String username) {
-        String methodNameForLogger = "getAPMUserWithUserName()";
-        APMLogger.logMethodEntry(methodNameForLogger);
-
+        logger.info("Calling getAPMUserByUsername(). username : {}", username);
 
         if (username == null || username.equalsIgnoreCase(MainConstants.STRING_EMPTY)) {
+            logger.error("Username is null or empty.");
             return null;
         }
 
@@ -132,7 +126,7 @@ public class APMUserService implements UserDetailsService {
         try {
             apmUserFromDB = apmUserRepository.findAPMUserByUsername(username);
         } catch (Exception exception) {
-            APMLogger.logError(methodNameForLogger, exception);
+            logger.error("Failed to retrieve the user with username. exception: {}", exception.toString());
         }
         return apmUserFromDB;
     }
@@ -143,9 +137,7 @@ public class APMUserService implements UserDetailsService {
      * @return APMUser object of user with 'emailID' (if found), 'null' if no entry found.
      */
     public APMUser getAPMUserByEmailID(String emailID) {
-        String methodNameForLogger = "getAPMUserWithUserName()";
-        APMLogger.logMethodEntry(methodNameForLogger);
-
+        logger.info("Calling getAPMUserByEmailID(). emailID : {}", emailID);
 
         if (emailID == null || emailID.equalsIgnoreCase(MainConstants.STRING_EMPTY)) {
             return null;
@@ -155,7 +147,7 @@ public class APMUserService implements UserDetailsService {
         try {
             apmUserFromDB = apmUserRepository.findAPMUserByEmailId(emailID);
         } catch (Exception exception) {
-            APMLogger.logError(methodNameForLogger, exception);
+            logger.error("Failed to retrieve the user with emailId. exception: {}", exception.toString());
         }
         return apmUserFromDB;
     }
@@ -167,8 +159,12 @@ public class APMUserService implements UserDetailsService {
      * @return 'MainConstants.MSG_ACCOUNT_LOCK_STATUS_UNLOCKED' or 'MainConstants.MSG_ACCOUNT_LOCK_STATUS_LOCKED'
      */
     public String unlockAPMUserAfterDurationInHours(APMUser apmUser, long durationMaxForAccountLockInHours) {
-        if (apmUser == null || durationMaxForAccountLockInHours < 0)
+        logger.info("Calling unlockAPMUserAfterDurationInHours(). apmUser : {}", apmUser.toLogString());
+        if (apmUser == null || durationMaxForAccountLockInHours < 0) {
+            logger.error("APMUser is null or empty.");
             return "APMUser is null or duration for account lock is less than zero.";
+        }
+
 
         Instant instantCurrentUTCTime = APISystemTime.getInstantTimeAsInstant();
         Instant userAccountLockedUTCTimeAsInstant = Instant.parse(apmUser.getTimestampAccountLocked());
@@ -180,10 +176,12 @@ public class APMUserService implements UserDetailsService {
 
             apmUser.setLoginAttemptsFailed(MainConstants.LOGIN_ATTEMPTS_FAILED_RESET_VALUE);
             apmUser.setTimestampAccountLocked(MainConstants.STRING_EMPTY);
+            logger.info("APMUser account is unlocked.");
             return MainConstants.MSG_ACCOUNT_LOCK_STATUS_UNLOCKED;
 
         } else {
 //            User Account is still locked.
+            logger.info("APMUser account is still locked.");
             return MainConstants.MSG_ACCOUNT_LOCK_STATUS_LOCKED;
         }
 
@@ -196,10 +194,10 @@ public class APMUserService implements UserDetailsService {
      *  MainConstants.FLAG_FAILURE if username is found.
      */
     public boolean isUsernameIsAvailable(UserSignUpRequest userSignUpRequest) {
-        APMLogger.logMethodEntry("Checking if username is available.");
+        logger.info("Calling isUsernameIsAvailable(). userSignUpRequest : {}", userSignUpRequest.toLogString());
 
         if (userSignUpRequest == null || userSignUpRequest.getUsername() == null) {
-            APMLogger.logError("Request object from client is null");
+            logger.error("UserSignUpRequest is null or empty.");
             return MainConstants.FLAG_FAILURE;
         }
 
@@ -207,10 +205,10 @@ public class APMUserService implements UserDetailsService {
 
         if (apmUserFromDb == null)
         {
-            APMLogger.logInfo("Username not found in DB.");
+            logger.info("Username not found in DB.");
             return MainConstants.FLAG_SUCCESS;
         } else {
-            APMLogger.logInfo("Username  found in DB.");
+            logger.info("Username already exists.");
             return MainConstants.FLAG_FAILURE;
         }
     }

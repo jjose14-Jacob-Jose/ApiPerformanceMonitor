@@ -5,7 +5,6 @@ import com.jacob.apm.models.APICall;
 import com.jacob.apm.models.ApmDashboardApiCall;
 import com.jacob.apm.models.RequestForDateRange;
 import com.jacob.apm.services.APILogService;
-import com.jacob.apm.utilities.APMLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +19,8 @@ import java.util.List;
 @RequestMapping("/apiCall")
 public class APILogController {
 
+    private static final Logger logger = LoggerFactory.getLogger(APILogController.class.getName());
+
     @Autowired
     APILogService apiLogService;
 
@@ -30,15 +31,14 @@ public class APILogController {
      */
     @PostMapping(value = "/saveFromApmDashBoard", produces = "application/json")
     public ResponseEntity<?> saveApiCallFromApmDashBoard(@RequestBody ApmDashboardApiCall apmDashboardApiCall) {
-        APMLogger.logMethodEntry("saveApiCallFromApmDashBoard()");
-
+        logger.info("Received request at /saveFromApmDashBoard. apmDashboardApiCall: {}", apmDashboardApiCall.toString());
         String operationStatus = apiLogService.saveToDbApiCallFromApmDashboard(apmDashboardApiCall);
 
         if(operationStatus.equalsIgnoreCase(MainConstants.MSG_FAILURE)) {
-            APMLogger.logError("saveApiCallFromApmDashBoard(): "+operationStatus);
+            logger.error("Error logging API call. operationStatus: {}", operationStatus);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(operationStatus);
         } else {
-            APMLogger.logMethodExit("saveApiCallFromApmDashBoard()");
+            logger.info("API call logged.");
             return ResponseEntity.status(HttpStatus.ACCEPTED).body(operationStatus);
         }
     }
@@ -50,16 +50,15 @@ public class APILogController {
      */
     @PostMapping(value = "/save", produces = "application/json")
     public ResponseEntity<?> saveAPICall(@RequestBody APICall apiCall) {
-        APMLogger.logMethodEntry("Saving API call log to database. ");
+        logger.info("Received request at /save. apiCall: {}", apiCall.toLogString());
 
         String operationStatus = apiLogService.saveToDatabaseAPICall(apiCall);
         if (operationStatus.equalsIgnoreCase(MainConstants.MSG_SUCCESS)) {
-            APMLogger.logMethodExit("Successfully saved API call. ");
+            logger.info("Successfully saved API call log to database.");
             return ResponseEntity.status(HttpStatus.ACCEPTED).body(operationStatus);
         }
-
-        APMLogger.logError("Couldn't save API call. Exception: "+operationStatus);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(operationStatus);
+        logger.error("Couldn't save API call. Exception: {}", operationStatus);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(operationStatus);
     }
 
     /**
@@ -68,37 +67,31 @@ public class APILogController {
      */
     @PostMapping(value = "/getAll", produces = "application/json")
     public ResponseEntity<List<APICall>> getAll() {
-        String messageLog = "/getAll from APM DashBoard";
-        APMLogger.logMethodEntry(messageLog);
-
+        logger.info("Received request at /getAll.");
         List<APICall> listAPICalls = apiLogService.getAPICallsList();
-
-        APMLogger.logMethodExit(messageLog);
+        logger.info("Successfully retrieved {} logs from database.", listAPICalls.size());
         return ResponseEntity.ok(listAPICalls);
     }
 
     @PostMapping(value = "/getAll/range", produces = "application/json")
     public ResponseEntity<List<APICall>> getAllInDateRange(@RequestBody RequestForDateRange requestForDateRange) {
-        String methodNameForLogger = "getAllInDateRange() from APM Dashboard";
-        APMLogger.logMethodEntry(methodNameForLogger);
-
+        logger.info("Received request at /getAllInDateRange. requestForDateRange: {}", requestForDateRange.toString());
         List<APICall> listAPICalls = apiLogService.getAPICallsWithinRange(requestForDateRange.getDateTimeRangeStartString(), requestForDateRange.getDateTimeRangeEndString());
-
-        APMLogger.logMethodExit(methodNameForLogger);
+        logger.info("Successfully retrieved {} logs from database.", listAPICalls.size());
         return ResponseEntity.ok(listAPICalls);
     }
 
     @ExceptionHandler(Exception.class)
     public ModelAndView handleException(Exception exception) {
         try {
-            APMLogger.logMethodEntry("handleException() " + exception.toString());
+            logger.error("Calling handleException(). exception:{}", exception.toString());
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("error"); // Set the view name to your error page (e.g., "error.html")
             modelAndView.addObject("exceptionMessage", exception.toString()); // Specify attributes you want to pass to the error page.
             return modelAndView;
 
         } catch (Exception exceptionLocal) {
-            APMLogger.logError("ERROR - EditionController - @ExceptionHandler(Exception.class) - handleException( " + exception.toString() + ")", exception);
+            logger.error("Exception occurred. exceptionLocal:{}", exceptionLocal.toString());
             return null;
         }
     }

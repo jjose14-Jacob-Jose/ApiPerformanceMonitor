@@ -10,23 +10,26 @@ import com.jacob.apm.models.AuthenticationRequest;
 import com.jacob.apm.models.UserSignUpRequest;
 import com.jacob.apm.services.APMUserService;
 import com.jacob.apm.services.JwtService;
-import com.jacob.apm.utilities.APMLogger;
 import com.jacob.apm.utilities.RecaptchaUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
 public class APMUserController {
+
+    private static final Logger logger = LoggerFactory.getLogger(APMUserController.class.getName());
+
     @Autowired
     private APMUserService apmUserService;
 
@@ -38,16 +41,13 @@ public class APMUserController {
 
     @PostMapping("/addNewUser")
     public ResponseEntity<?> addNewUser(@RequestBody UserSignUpRequest userSignUpRequest) {
-        String methodNameForLogging = "addNewUser(): Adding new user.";
-        APMLogger.logMethodEntry(methodNameForLogging);
+        logger.info("Request received at /addNewUser. userSignUpRequest: " + userSignUpRequest.toLogString());
 
         String operationStatus = apmUserService.saveUserToDatabase(userSignUpRequest);
 
         if (operationStatus.equalsIgnoreCase(MainConstants.MSG_SUCCESS)) {
-            APMLogger.logMethodExit(methodNameForLogging);
             return ResponseEntity.status(HttpStatus.ACCEPTED).body(MainConstants.MSG_SUCCESS);
         } else {
-            APMLogger.logError(methodNameForLogging);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(operationStatus);
         }
     }
@@ -55,16 +55,17 @@ public class APMUserController {
     @PostMapping("/generateToken")
     public ResponseEntity<?> authenticateAndGetToken(@RequestBody AuthenticationRequest authenticationRequest, HttpServletResponse response) {
 
+        logger.info("Calling /generateToken. authenticationRequest: " + authenticationRequest.toLogString());
         if (authenticationRequest == null) {
             String errorMessage = "AuthenticationRequest object is null. ";
-            APMLogger.logError(errorMessage);
+            logger.error(errorMessage);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
         }
 
 //        Validate Google reCaptcha.
         if(! (RecaptchaUtil.validateRecaptcha(authenticationRequest.getGoogleReCaptcha()))) {
             String errorMessage = "Google reCaptcha server-side verification failed. Client token: "+authenticationRequest.getGoogleReCaptcha();
-            APMLogger.logError(errorMessage);
+            logger.error(errorMessage);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
         }
 
@@ -86,25 +87,24 @@ public class APMUserController {
                 response.addCookie(cookieUsername);
 
                 String messageForLog = "Successfully generated JWT token and cookie for username: "+authenticationRequest.getUsername();
-                APMLogger.logInfo(messageForLog);
+                logger.info(messageForLog);
                 return ResponseEntity.status(HttpStatus.OK).body(MainConstants.MSG_SUCCESS);
             }
         }catch (Exception exception) {
             String messageForLog = "Could not create generate JWT token for username: "+authenticationRequest.getUsername();
-            APMLogger.logInfo(messageForLog);
+            logger.error(messageForLog);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception);
         }
 
         String errorMessage = "Invalid credentials. " + authenticationRequest.toString();
-        APMLogger.logError(errorMessage);
+        logger.error(errorMessage);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
     }
 
     @GetMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
 
-        String methodNameForLogs = "Initiating logout()";
-        APMLogger.logMethodEntry(methodNameForLogs);
+        logger.info("Calling /logout");
         try{
             Cookie[] cookies = request.getCookies();
             if (cookies != null) {
@@ -115,25 +115,21 @@ public class APMUserController {
                     response.addCookie(cookie);
                 }
             }
-            APMLogger.logInfo(methodNameForLogs + " cleared all cookies. Logout successful.");
+            logger.info("Cleared all cookies. Logout successful.");
 
         } catch (Exception exception) {
-            APMLogger.logError(methodNameForLogs, exception);
+            logger.error("Failed to logout. " + exception.getMessage());
         }
         return ResponseEntity.status(HttpStatus.FOUND).header("Location", "/").body("");    }
 
     @PostMapping("/isUsernameAvailable")
     public ResponseEntity<?> isUsernameAvailable(@RequestBody UserSignUpRequest userSignUpRequest) {
-        String methodNameForLogging = "isUserNameAvailable()";
-        APMLogger.logMethodEntry(methodNameForLogging + " check if username is available. ");
-
+        logger.info("Calling /isUsernameAvailable. userSignUpRequest: " + userSignUpRequest.toLogString());
         boolean operationStatus = apmUserService.isUsernameIsAvailable(userSignUpRequest);
 
         if (operationStatus == MainConstants.FLAG_SUCCESS) {
-            APMLogger.logMethodExit(methodNameForLogging + " requested username available.");
             return ResponseEntity.status(HttpStatus.OK).body(operationStatus);
         } else {
-            APMLogger.logError(methodNameForLogging + "requested username is not available.");
             return ResponseEntity.status(HttpStatus.CONFLICT).body(operationStatus);
         }
     }

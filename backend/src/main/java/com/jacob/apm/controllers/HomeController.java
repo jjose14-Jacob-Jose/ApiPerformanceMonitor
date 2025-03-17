@@ -1,12 +1,15 @@
 package com.jacob.apm.controllers;
 
 import com.jacob.apm.constants.MainConstants;
-import com.jacob.apm.utilities.APMLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 @RestController
 public class HomeController {
+
+    private static final Logger logger = LoggerFactory.getLogger(HomeController.class.getName());
 
     /**
      * Method to check server availability.
@@ -14,62 +17,62 @@ public class HomeController {
      */
     @GetMapping("/status")
     public String status() {
-        APMLogger.logMethodEntry("API endpoint '/status' called.");
+        logger.info("Request received at /status.");
         return MainConstants.MSG_SUCCESS;
     }
 
     @GetMapping("/home")
     public ModelAndView home() {
-        APMLogger.logMethodEntry("API endpoint '/home' called.");
+        logger.info("Request received at /home.");
         try {
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("home");
             return modelAndView;
         } catch (Exception exception) {
+            logger.error("Failed to get /home. exception: {}", exception.getMessage());
             return handleException(exception);
         }
     }
 
     @GetMapping({"/login", "/"})
     public ModelAndView login() {
+        logger.info("Request received at /login.");
         try {
-            APMLogger.logMethodEntry("login()");
             ModelAndView modelAndView = new ModelAndView();
-            APMLogger.logMethodEntry("API endpoint '/login' called.");
             modelAndView.setViewName("login"); // Set the view name to your error page (e.g., "error.html")
             return modelAndView;
 
         } catch (Exception exception) {
-            APMLogger.logError( "loginPage()", exception);
+            logger.error("Failed to get login page. exception: {}", exception.getMessage());
             return null;
         }
     }
 
     @GetMapping({"/signup"})
     public ModelAndView signUp() {
+        logger.info("Request received at /signup.");
         try {
-            APMLogger.logMethodEntry("API endpoint '/signup' called.");
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("signup"); // Set the view name to your error page (e.g., "error.html")
             return modelAndView;
 
         } catch (Exception exception) {
-            APMLogger.logError( "signUp()", exception);
+            logger.error("Failed to retrieve /signup. exception: {}", exception.getMessage());
             return null;
         }
     }
 
     @ExceptionHandler(Exception.class)
     public ModelAndView handleException(Exception exception) {
+        logger.error("Exception occurred while calling HTML endpoints. exception: {}", exception.getMessage());
         try {
-            APMLogger.logMethodEntry("Exception occurred while calling API endpoints. " + exception);
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("error"); // Set the view name to your error page (e.g., "error.html")
             modelAndView.addObject("exceptionMessage", exception.toString()); // Specify attributes you want to pass to the error page.
             return modelAndView;
 
         } catch (Exception exceptionLocal) {
-            APMLogger.logError("ERROR - EditionController - @ExceptionHandler(Exception.class) - handleException( " + exception.toString() + ")", exception);
+            logger.error("Exception while handling HTML-API exception. exceptionLocal: {}", exceptionLocal.getMessage());
             return null;
         }
     }

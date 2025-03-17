@@ -39,4 +39,14 @@ public class APMUser {
     public int hashCode() {
         return Objects.hash(getUsername(), getEmailId(), getPassword(), getNameFirst(), getNameLast(), getTimestampRegistration(), getLoginAttemptsFailed(), getTimestampAccountLocked());
     }
+
+    public String toLogString() {
+        return "APMUser{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", nameFirst='" + nameFirst + '\'' +
+                ", loginAttemptsFailed=" + loginAttemptsFailed +
+                ", timestampAccountLocked='" + timestampAccountLocked + '\'' +
+                '}';
+    }
 }

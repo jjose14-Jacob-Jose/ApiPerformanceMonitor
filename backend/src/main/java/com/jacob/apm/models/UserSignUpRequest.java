@@ -10,4 +10,11 @@ public class UserSignUpRequest {
     private String emailId;
     private String password;
     private String googleReCaptchaToken;
+
+    public String toLogString() {
+        return "UserSignUpRequest{" +
+                "nameFirst='" + nameFirst + '\'' +
+                ", username='" + username + '\'' +
+                '}';
+    }
 }

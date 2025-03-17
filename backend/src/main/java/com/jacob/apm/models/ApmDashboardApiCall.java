@@ -9,4 +9,10 @@ public class ApmDashboardApiCall {
     private String googleReCaptchaToken;
     private APICall apiCall;
 
+    public String toLogString() {
+        return "ApmDashboardApiCall{" +
+                "username='" + username + '\'' +
+                ", apiCall=" + apiCall +
+                '}';
+    }
 }
