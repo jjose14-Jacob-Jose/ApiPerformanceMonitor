@@ -1,9 +1,7 @@
 spring:
   data:
     mongodb:
-      host: localhost
-      port: 27017
-      database: API_Performance_Monitor
+      uri: ${URI_MONGO_DB}
 
 secrets:
   jwt: ${JWT_SECRET}

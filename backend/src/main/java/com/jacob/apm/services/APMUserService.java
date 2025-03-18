@@ -2,16 +2,24 @@ package com.jacob.apm.services;
 
 import com.jacob.apm.constants.MainConstants;
 import com.jacob.apm.models.APMUser;
+import com.jacob.apm.models.AuthenticationRequest;
 import com.jacob.apm.models.UserInfoDetails;
 import com.jacob.apm.models.UserSignUpRequest;
 import com.jacob.apm.repositories.APMUserRepository;
 import com.jacob.apm.utilities.APISystemTime;
 import com.jacob.apm.utilities.RecaptchaUtil;
 import com.jacob.apm.utilities.RequestValidator;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -211,6 +219,54 @@ public class APMUserService implements UserDetailsService {
             logger.info("Username already exists.");
             return MainConstants.FLAG_FAILURE;
         }
+    }
+
+    public ResponseEntity<?> generateToken(AuthenticationRequest authenticationRequest, HttpServletResponse response, JwtService jwtService, AuthenticationManager authenticationManager) {
+
+        logger.info("Calling generateToken. authenticationRequest: " + authenticationRequest.toLogString());
+        if (authenticationRequest == null) {
+            String errorMessage = "AuthenticationRequest object is null. ";
+            logger.error(errorMessage);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
+        }
+
+//        Validate Google reCaptcha.
+        if(! (RecaptchaUtil.validateRecaptcha(authenticationRequest.getGoogleReCaptcha()))) {
+            String errorMessage = "Google reCaptcha server-side verification failed. Client token: "+authenticationRequest.getGoogleReCaptcha();
+            logger.error(errorMessage);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorMessage);
+        }
+
+        try {
+            authenticationRequest.setUsername(authenticationRequest.getUsername().toLowerCase());
+            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername().toLowerCase(), authenticationRequest.getPassword()));
+            if (authentication.isAuthenticated()) {
+                String token = jwtService.generateToken(authenticationRequest.getUsername());
+
+                // Set the token as an HTTP-only cookie
+                Cookie cookieHttpOnly = new Cookie(MainConstants.COOKIE_HEADER_AUTHORIZATION, token);
+                cookieHttpOnly.setHttpOnly(true);
+                cookieHttpOnly.setPath("/");
+                response.addCookie(cookieHttpOnly);
+
+                Cookie cookieUsername = new Cookie(MainConstants.COOKIE_HEADER_PREFIX_USERNAME, authenticationRequest.getUsername());
+                cookieUsername.setMaxAge(MainConstants.DURATION_MILLISECONDS_IN_ONE_HOUR);
+                cookieUsername.setPath("/");
+                response.addCookie(cookieUsername);
+
+                String messageForLog = "Successfully generated JWT token and cookie for username: "+authenticationRequest.getUsername();
+                logger.info(messageForLog);
+                return ResponseEntity.status(HttpStatus.OK).body(MainConstants.MSG_SUCCESS);
+            }
+        }catch (Exception exception) {
+            String messageForLog = "Could not create generate JWT token for username: "+authenticationRequest.getUsername();
+            logger.error(messageForLog);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(exception);
+        }
+
+        String errorMessage = "Invalid credentials. " + authenticationRequest.toString();
+        logger.error(errorMessage);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorMessage);
     }
 
 }

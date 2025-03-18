@@ -10,7 +10,6 @@ import com.jacob.apm.models.AuthenticationRequest;
 import com.jacob.apm.models.UserSignUpRequest;
 import com.jacob.apm.services.APMUserService;
 import com.jacob.apm.services.JwtService;
-import com.jacob.apm.utilities.RecaptchaUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -20,8 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -54,51 +51,8 @@ public class APMUserController {
 
     @PostMapping("/generateToken")
     public ResponseEntity<?> authenticateAndGetToken(@RequestBody AuthenticationRequest authenticationRequest, HttpServletResponse response) {
-
-        logger.info("Calling /generateToken. authenticationRequest: " + authenticationRequest.toLogString());
-        if (authenticationRequest == null) {
-            String errorMessage = "AuthenticationRequest object is null. ";
-            logger.error(errorMessage);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
-        }
-
-//        Validate Google reCaptcha.
-        if(! (RecaptchaUtil.validateRecaptcha(authenticationRequest.getGoogleReCaptcha()))) {
-            String errorMessage = "Google reCaptcha server-side verification failed. Client token: "+authenticationRequest.getGoogleReCaptcha();
-            logger.error(errorMessage);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
-        }
-
-        try {
-            authenticationRequest.setUsername(authenticationRequest.getUsername().toLowerCase());
-            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername().toLowerCase(), authenticationRequest.getPassword()));
-            if (authentication.isAuthenticated()) {
-                String token = jwtService.generateToken(authenticationRequest.getUsername());
-
-                // Set the token as an HTTP-only cookie
-                Cookie cookieHttpOnly = new Cookie(MainConstants.COOKIE_HEADER_AUTHORIZATION, token);
-                cookieHttpOnly.setHttpOnly(true);
-                cookieHttpOnly.setPath("/");
-                response.addCookie(cookieHttpOnly);
-
-                Cookie cookieUsername = new Cookie(MainConstants.COOKIE_HEADER_PREFIX_USERNAME, authenticationRequest.getUsername());
-                cookieUsername.setMaxAge(MainConstants.DURATION_MILLISECONDS_IN_ONE_HOUR);
-                cookieUsername.setPath("/");
-                response.addCookie(cookieUsername);
-
-                String messageForLog = "Successfully generated JWT token and cookie for username: "+authenticationRequest.getUsername();
-                logger.info(messageForLog);
-                return ResponseEntity.status(HttpStatus.OK).body(MainConstants.MSG_SUCCESS);
-            }
-        }catch (Exception exception) {
-            String messageForLog = "Could not create generate JWT token for username: "+authenticationRequest.getUsername();
-            logger.error(messageForLog);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception);
-        }
-
-        String errorMessage = "Invalid credentials. " + authenticationRequest.toString();
-        logger.error(errorMessage);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
+        logger.info("Request at /generateToken.");
+        return apmUserService.generateToken(authenticationRequest, response, jwtService, authenticationManager);
     }
 
     @GetMapping("/logout")
