@@ -1,12 +1,14 @@
 # API Performance Monitor (APM)
 
-## What is it?
+[ApiPerformanceMonitor.onrender.com](https://apiperformancemonitor.onrender.com)
 
-If you have deployed web applications across multiple platforms, and you find difficult to track their usage, 'API Performance Monitor' is the right tool for you.
-APM can receive and stores logs from other services in its database, which you later use for analysis. 
+![home_page.png](miscellaneous/documents/images/home_page.png)
+
+## About
+APM is a centralized log monitoring tool that can be pinged from other applications.
 
 ## Architecture
-[Click here](miscellaneous/documents/APM-Design_Document.pdf), if you want to see the project architecture.  
+[Click here](miscellaneous/documents/APM-Design_Document.pdf) for the project architecture.  
 
 ## Running the APM Locally
 ### Prerequisites
@@ -18,18 +20,18 @@ APM can receive and stores logs from other services in its database, which you l
 You can also run the project by building and running the Dockerfile. Your computer must have [Docker](https://www.docker.com/products/docker-desktop/) installed for this.  
 
 ### Steps to execute using JDK + MongoDB
-1. Update MongoDB configuration information in the  `application.properties` (_src/main/resources/application.properties_).
+1. Update MongoDB configuration information in the  `application.yaml` (_backend/src/main/resources/application.yaml_).
 2. Go to **backend** folder inside the root directory.
-2. Open Terminal inside the backend directory.
-2. Do the Maven build using the command: `mvn clean install`.
-3. Go to the target folder: `cd target`
-4. Run the JAR file: `java -jar .\apm-0.0.1-SNAPSHOT.jar`
-5. Access Project at [http://localhost:8080/login](http://localhost:8080/login).
+3. Open Terminal inside the backend directory.
+4. Do the Maven build using the command: `mvn clean install`.
+5. Go to the target folder: `cd target`
+6. Run the JAR file: `java -jar .\apm-0.0.1-SNAPSHOT.jar`
+7. Access Project at [http://localhost:8080/login](http://localhost:8080/login).
 
 ### Steps to execute using Dockerfile + MongoDB
-1. Update MongoDB configuration information in the  `application-docker.properties` (_src/main/resources/application-docker.properties_).
+1. Update MongoDB configuration information in the  `application.yaml` (_backend/src/main/resources/application.yaml_).
 2. Open Terminal in the root directory. 
-2. Run the project via the Dockerfile on the **port 8080**.
-3. `docker build -t apm_image:latest .`
-4.  `docker run -p 8080:8080 --name apm_container apm_image:latest`
-5. Access Project at [http://localhost:8080/login](http://localhost:8080/login).
+3. Run the project via the Dockerfile on the **port 8080**.
+4. `docker build -t apm_image:latest .`
+5. `docker run -p 8080:8080 --name apm_container apm_image:latest`
+6. Access Project at [http://localhost:8080/login](http://localhost:8080/login).
