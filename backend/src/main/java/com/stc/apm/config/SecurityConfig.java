@@ -44,7 +44,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers(
-                                "/healthCheck",
+                                "/status",
                                 "/login",
                                 "/signup",
                                 "/",

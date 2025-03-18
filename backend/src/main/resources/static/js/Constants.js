@@ -9,7 +9,6 @@ const HTML_CSS_CLASS_TABLE_RESPONSE_FROM_ALL_API_CALLs = "tableResponse";
 const HTML_ID_TEXTAREA_API_CALL_MESSAGE = "textAreaMessage";
 const HTML_ID_TEXT_API_CALL_APPLICATION_NAME = "textApplicationName";
 const HTML_ID_DATETIME_API_CALL_TIMESTAMP = "dateTimeLocalCallTimestamp";
-const JSON_REQUEST_KEY_APM_DASHBOARD_API_CALL = 'apmDashboardApiCall';
 const JSON_REQUEST_KEY_API_CALL = 'apiCall';
 const JSON_REQUEST_KEY_USERNAME = 'username';
 const JSON_REQUEST_KEY_API_CALL_CALLER_NAME = 'callerName';

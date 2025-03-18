@@ -15,9 +15,9 @@ public class HomeController {
      * Method to check server availability.
      * @return MainConstants.MSG_SUCCESS (String).
      */
-    @GetMapping("/healthCheck")
-    public String healthCheck() {
-        logger.info("Request received at /healthCheck.");
+    @GetMapping("/status")
+    public String status() {
+        logger.info("Request received at /status.");
         return MainConstants.MSG_SUCCESS;
     }
 
