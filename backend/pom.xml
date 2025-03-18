@@ -8,7 +8,7 @@
 		<version>3.1.4</version>
 		<relativePath/>
 	</parent>
-	<groupId>com.jacob</groupId>
+	<groupId>com.stc</groupId>
 	<artifactId>apm</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>API Performance Monitor</name>
