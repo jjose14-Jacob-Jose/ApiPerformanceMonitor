@@ -24,16 +24,16 @@
             <table class="tableUserInput" id="tableMakeAPILogs" >
                 <tr>
                     <td class="tableHeading"></td>
-                    <td><label for="textAreaMessage">Message:</label></td>
+                    <td><label for="textAreaMessage">Message*:</label></td>
                     <td><textarea id="textAreaMessage"></textarea></td>
-                    <td><label for="textApplicationName">Name:</label></td>
+                    <td><label for="textApplicationName">Name*:</label></td>
                     <td><input type="text" id="textApplicationName"></td>
                     <td><label for="dateTimeLocalCallTimestamp">Timestamp</label></td>
                     <td><input type="datetime-local" id="dateTimeLocalCallTimestamp"></td>
                     <td><button class="g-recaptcha"
                             data-sitekey="6LcBzNYoAAAAAEfEaqpohyGQCT3iRYO8NegFrsAY"
                             data-callback='makeAPILog'
-                            data-action='submit'>Send POST Request</button>
+                            data-action='submit'>Log Message</button>
                     </td>
                     <td><button id="btnPostApiCallClear" onclick="clearFormContents()">Clear</button></td>
                 </tr>
