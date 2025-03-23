@@ -3,7 +3,7 @@
     <option name="ALTERNATIVE_JRE_PATH" value="BUNDLED" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
     <module name="apm" />
-    <option name="SPRING_BOOT_MAIN_CLASS" value="com.jacob.apm.ApiPerformanceMonitorApplication" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="com.stc.apm.ApiPerformanceMonitorApplication" />
     <method v="2">
       <option name="RunConfigurationTask" enabled="true" run_configuration_name="mvn clean install" run_configuration_type="MavenRunConfiguration" />
       <option name="Make" enabled="true" />
