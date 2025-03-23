@@ -1,15 +1,18 @@
 package com.stc.apm.services;
 
 import com.stc.apm.constants.MainConstants;
+import com.stc.apm.models.ApiCall;
 import com.stc.apm.models.ApmUser;
 import com.stc.apm.repositories.ApmUserRepository;
 import com.stc.apm.utilities.ApiSystemTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -18,17 +21,21 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@ExtendWith(MockitoExtension.class)
 class ApmUserServiceTest {
 
     @Mock
     private ApmUserRepository apmUserRepository;
+
+    @Mock
+    private ApiLogService apiLogService;
 
     @InjectMocks
     private ApmUserService apmUserService;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this); // Initialize annotated mocks
+        MockitoAnnotations.openMocks(this);
     }
 
     private List<ApmUser> getApmUserList() {
@@ -71,7 +78,7 @@ class ApmUserServiceTest {
 //        Specifying what repository should when it receives a call to 'findAPMUserByUser' with 'username' as variable.
         Mockito.when(apmUserRepository.findApmUserByUsername(username)).thenReturn(apmUser);
 
-//        Calling service this, this will invoking the Mockito method.
+//        Calling service this, this will be invoking the Mockito method.
         ApmUser apmUserWithUsernameFromDB = apmUserService.getApmUserByUsername(username);
 
 //        Ensuring the service class in previous line has called the mocked repository method.
@@ -95,7 +102,7 @@ class ApmUserServiceTest {
 //        Specifying what repository should when it receives a call to 'findAPMUserByUser' with 'username' as variable.
         Mockito.when(apmUserRepository.findApmUserByUsername(username)).thenReturn(apmUser2);
 
-//        Calling service this, this will invoking the Mockito method.
+//        Calling service this, this will be invoking the Mockito method.
         ApmUser apmUserWithUsernameFromDB = apmUserService.getApmUserByUsername(username);
 
 //        Ensuring the service class in previous line has called the mocked repository method.
@@ -116,7 +123,7 @@ class ApmUserServiceTest {
 //        Specifying what repository should when it receives a call to 'findAPMUserByUser' with 'username' as variable.
         Mockito.when(apmUserRepository.findApmUserByEmailId(emailID)).thenReturn(apmUser);
 
-//        Calling service this, this will invoking the Mockito method.
+//        Calling service this, this will be invoking the Mockito method.
         ApmUser apmUserWithEmailIDFromDB = apmUserService.getApmUserByEmailID(emailID);
 
 //        Ensuring the service class in previous line has called the mocked repository method.
@@ -139,7 +146,7 @@ class ApmUserServiceTest {
 //        Specifying what repository should when it receives a call to 'findAPMUserByUser' with 'username' as variable.
         Mockito.when(apmUserRepository.findApmUserByEmailId(emailID)).thenReturn(apmUser2);
 
-//        Calling service this, this will invoking the Mockito method.
+//        Calling service this, this will be invoking the Mockito method.
         ApmUser apmUserWithEmailIDFromDB = apmUserService.getApmUserByEmailID(emailID);
 
 //        Ensuring the service class in previous line has called the mocked repository method.
