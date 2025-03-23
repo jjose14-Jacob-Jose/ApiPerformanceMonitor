@@ -2,6 +2,7 @@ package com.stc.apm.services;
 
 import com.stc.apm.constants.MainConstants;
 import com.stc.apm.models.ApmUser;
+import com.stc.apm.models.ApiCall;
 import com.stc.apm.models.AuthenticationRequest;
 import com.stc.apm.models.UserInfoDetails;
 import com.stc.apm.models.UserSignUpRequest;
@@ -37,12 +38,19 @@ public class ApmUserService implements UserDetailsService {
 
     private static final Logger logger = LoggerFactory.getLogger(ApmUserService.class.getName());
 
+    private final ApiLogService apiLogService;
+
     @Autowired
     private ApmUserRepository apmUserRepository;
 
     @Autowired
     @Lazy
     private PasswordEncoder encoder;
+
+    @Autowired
+    public ApmUserService(ApiLogService apiLogService) {
+        this.apiLogService = apiLogService;
+    }
 
     /**
      * Save user to database.
@@ -89,9 +97,15 @@ public class ApmUserService implements UserDetailsService {
         try {
             apmUserRepository.save(apmUser);
             logger.info("User saved to database.");
+            apiLogService.saveToDatabaseApiCall(
+                new ApiCall(String.format("New user account created. Welcome '%s'.", apmUser.getUsername()), "APM Web Interface")
+            );
             return MainConstants.MSG_SUCCESS;
         } catch (Exception exception) {
             logger.info("Exception while saving user  to database." + exception.toString());
+            apiLogService.saveToDatabaseApiCall(
+                    new ApiCall(String.format("Failed to create an account for '%s'.", apmUser.getUsername()), "APM Web Interface")
+            );
             return exception.getMessage();
         }
     }
@@ -135,6 +149,9 @@ public class ApmUserService implements UserDetailsService {
             apmUserFromDB = apmUserRepository.findApmUserByUsername(username);
         } catch (Exception exception) {
             logger.error("Failed to retrieve the user with username. exception: {}", exception.toString());
+            apiLogService.saveToDatabaseApiCall(
+                    new ApiCall(String.format("Failed to retrieve the user with username '%s'.", username), "APM Web Interface")
+            );
         }
         return apmUserFromDB;
     }
@@ -256,11 +273,17 @@ public class ApmUserService implements UserDetailsService {
 
                 String messageForLog = "Successfully generated JWT token and cookie for username: "+authenticationRequest.getUsername();
                 logger.info(messageForLog);
+                apiLogService.saveToDatabaseApiCall(
+                        new ApiCall(String.format("Welcome '%s'.",authenticationRequest.getUsername()), "APM Web Interface")
+                );
                 return ResponseEntity.status(HttpStatus.OK).body(MainConstants.MSG_SUCCESS);
             }
         }catch (Exception exception) {
             String messageForLog = "Could not create generate JWT token for username: "+authenticationRequest.getUsername();
             logger.error(messageForLog);
+            apiLogService.saveToDatabaseApiCall(
+                    new ApiCall(String.format("User '%s' is facing issue trying to log-in.", authenticationRequest.getUsername()), "APM Web Interface")
+            );
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(exception);
         }
 

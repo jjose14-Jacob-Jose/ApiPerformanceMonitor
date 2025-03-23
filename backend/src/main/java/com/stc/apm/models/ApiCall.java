@@ -26,4 +26,9 @@ public class ApiCall {
                 ", callerName='" + callerName + '\'' +
                 '}';
     }
+
+    public ApiCall(String callerMessage, String callerName) {
+        this.callerMessage = callerMessage;
+        this.callerName = callerName;
+    }
 }
