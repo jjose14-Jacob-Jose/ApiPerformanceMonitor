@@ -60,11 +60,14 @@
     </main>
     <footer>
         <div class="divFooterCenter">
-            &copy; <a href="https://jacobjose.live/" target="_blank" >jacobjose.live</a>
+            &copy
+            <span id="currentYear"></span>
+            <script>document.getElementById("currentYear").textContent = new Date().getFullYear();</script>
+            <a href="https://jacobjose.live/" target="_blank" >jacobjose.live</a>
         </div>
         <div class="divFooterRight">
             Contact us:
-            <a href="mailto:apm@jacobjose.live">apm@jacobjose.live</a>
+            <a href="mailto:jacobjose.asu@hotmail.com">jacobjose.asu@hotmail.com</a>
         </div>
     </footer>
 </body>

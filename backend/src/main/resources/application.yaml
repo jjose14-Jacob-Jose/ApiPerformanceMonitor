@@ -1,0 +1,15 @@
+spring:
+  data:
+    mongodb:
+      uri: ${URI_MONGO_DB}
+
+secrets:
+  jwt: ${JWT_SECRET}
+  google_recaptcha_server: ${GOOGLE_RECAPTCHA_SERVER_KEY}
+
+urls:
+  google_recaptcha_server: "https://www.google.com/recaptcha/api/siteverify"
+
+duration:
+  jwt_token_validity_in_hours: 24
+

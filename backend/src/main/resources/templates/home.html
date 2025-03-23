@@ -23,19 +23,24 @@
 
             <table class="tableUserInput" id="tableMakeAPILogs" >
                 <tr>
-                    <td class="tableHeading">Make API Logs</td>
-                    <td><label for="textAreaMessage">Message:</label></td>
+                    <td class="tableHeading"></td>
+                    <td><label for="textAreaMessage">Message*:</label></td>
                     <td><textarea id="textAreaMessage"></textarea></td>
-                    <td><label for="textApplicationName">Name:</label></td>
+                    <td><label for="textApplicationName">Name*:</label></td>
                     <td><input type="text" id="textApplicationName"></td>
                     <td><label for="dateTimeLocalCallTimestamp">Timestamp</label></td>
                     <td><input type="datetime-local" id="dateTimeLocalCallTimestamp"></td>
                     <td><button class="g-recaptcha"
                             data-sitekey="6LcBzNYoAAAAAEfEaqpohyGQCT3iRYO8NegFrsAY"
                             data-callback='makeAPILog'
-                            data-action='submit'>Send POST Request</button>
+                            data-action='submit'>Log Message</button>
                     </td>
                     <td><button id="btnPostApiCallClear" onclick="clearFormContents()">Clear</button></td>
+                </tr>
+                <tr>
+                    <td colspan="9">
+                        <hr style="border: 1px solid #7090df; width: 100%;">
+                    </td>
                 </tr>
                 <tr>
                     <td class="tableHeading">Filter Logs</td>
@@ -60,11 +65,14 @@
     </main>
     <footer>
         <div class="divFooterCenter">
-            &copy; <a href="https://jacobjose.live/" target="_blank" >jacobjose.live</a>
+            &copy
+            <span id="currentYear"></span>
+            <script>document.getElementById("currentYear").textContent = new Date().getFullYear();</script>
+            <a href="https://jacobjose.live/" target="_blank" >jacobjose.live</a>
         </div>
         <div class="divFooterRight">
             Contact us:
-            <a href="mailto:apm@jacobjose.live">apm@jacobjose.live</a>
+            <a href="mailto:jacobjose.asu@hotmail.com">jacobjose.asu@hotmail.com</a>
         </div>
     </footer>
 </body>

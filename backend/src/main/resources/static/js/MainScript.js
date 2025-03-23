@@ -11,7 +11,7 @@ function stringIsEmpty(string) {
 }
 
 /**
- * Event-listener for 'Send POST Request' button.
+ * Event-listener for 'Log Message' button.
  */
 function makeAPILog() {
 
